@@ -1,5 +1,6 @@
 
-graph_datafile <- paste0(Sys.getenv("VACTIME_PATH"), "/tweets_for_graph.Rdata")
+# graph_datafile <- paste0(Sys.getenv("VACTIME_PATH"), "/tweets_for_graph.Rdata")
+graph_datafile <- "tweets_for_graph.Rdata"
 
 load(graph_datafile)
 
