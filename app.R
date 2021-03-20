@@ -16,7 +16,7 @@ get_graph_data <- function(input_day, input_type, input_starting, input_search, 
   
     if(input_search != "") {
         input_regex <- gsub("\\s?OR\\s?", "|", input_search)
-        mydt <- mydt[grepl(input_regex, Location)]
+        mydt <- mydt[grepl(input_regex, text)]
     }
     
     mydt <- mydt[Date >= input_starting, .("Created" = as.character(Time), "Tweet" = text, Date, Hour, Weekday, Number, Location)]
@@ -53,7 +53,7 @@ ui <- navbarPage(
                              min = "2021-02-10", max = Sys.Date(),
                              value = "2021-03-01"
                              ),
-            shiny::textAreaInput("search", "Search Table Location Column: (separate multiple terms with OR): ", height = 50)
+            shiny::textAreaInput("search", "Search Table Tweet Column: (separate multiple terms with OR): ", height = 50)
         ),
 
         # Show plot and table
