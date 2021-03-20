@@ -117,7 +117,7 @@ server <- function(input, output, session) {
     })
     
     output$mytable <- renderDT({
-        DT::datatable(thedata(), filter = 'top', rownames = FALSE, extensions = 'Buttons', 
+        DT::datatable(thedata(), filter = 'top', extensions = 'Buttons', 
                       options = list( search = list(
                                    regex = TRUE
                                     ),
