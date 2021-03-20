@@ -26,6 +26,7 @@ get_graph_data <- function(input_day, input_type, input_starting, input_search, 
 
 
 library(shiny)
+library(shinythemes)
 library(DT)
 library(echarts4r)
 library(data.table)
@@ -37,6 +38,7 @@ ui <- fluidPage(
 
     # Application title
     titlePanel("@vaccinetime tweets"),
+    theme = shinytheme("cosmo"),
 
     # Sidebar with a slider input for number of bins 
     sidebarLayout(
