@@ -1,4 +1,5 @@
-graph_datafile <-paste0(Sys.getenv("VACTIME_PATH"), "/VaccineTimeTweets/tweets_for_graph.Rds")
+
+graph_datafile <-paste0(Sys.getenv("VACTIME_PATH"), "/tweets_for_graph.Rds")
 
 load(graph_datafile)
 
