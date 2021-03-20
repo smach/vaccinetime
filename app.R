@@ -94,7 +94,7 @@ ui <- navbarPage(
 
 # Define server logic ----
 
-server <- function(input, output) {
+server <- function(input, output, session) {
   
     output$test <- renderText(
       input$search
