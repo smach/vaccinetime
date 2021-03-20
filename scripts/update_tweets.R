@@ -1,4 +1,5 @@
-# Set vaccinetime root directory full path in VACTIMEPATH environment
+# NOTE: Set vaccinetime root directory full path in the VACTIME_PATH R  environment variable. This is needed for cron job running on Linux server
+
 datafile <- paste0(Sys.getenv("VACTIME_PATH"), "/data/vactweets.Rds")
 graph_datafile <- paste0(Sys.getenv("VACTIME_PATH"), "/data/tweets_for_graph.Rdata")
 app_datafile <- paste0(Sys.getenv("VACTIME_PATH"), "/tweets_for_graph.Rdata")
@@ -8,7 +9,6 @@ library(data.table)
 vactweets <- rtweet::get_timeline("vaccinetime", n = 1000)
 setDT(vactweets)
 if(file.exists(datafile)) {
-  # print("file exists!")
   previous_vactweets <- readRDS(datafile)
   previous_ids <- previous_vactweets$status_id
   new_vactweets <- vactweets[!(status_id %chin% previous_ids)]
@@ -18,8 +18,12 @@ if(file.exists(datafile)) {
   }  
   
 }
+
+# Saving raw data because I'm paranoid about making sure to do that
 saveRDS(vactweets, datafile)
-Sys.sleep(5)
+Sys.sleep(3)
+
+# Now start wrangling copy of data for app
 tweets <- readRDS(datafile)
 
 tweets <- tweets[is_retweet==FALSE, .(created_at, text)]
@@ -39,11 +43,7 @@ tweets[, Location := ifelse(Type == "CVS", "CVS",
 )]
 tweets[, Location := gsub("^.*?available at\\s(.*?)\\son.*?$", "\\1", Location)]
 
-# check_location <- rio::import("data/locations.xlsx")
-# useful_tweets <- merge(tweets, check_location, all.x = TRUE, all.y = FALSE)
-# useful_tweets <- useful_tweets[Date >= as.Date("2021-03-01") & NotUseful ==  "depends"]
-# useful_locations <- check_location$Location[check_location$NotUseful == "depends"]
-
+# Not really needed for app but might want someday
 cvs_tweets <- tweets[Type == "CVS"]
 
 save(tweets, cvs_tweets, file = graph_datafile)

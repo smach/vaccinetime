@@ -1,9 +1,9 @@
 
-# graph_datafile <- paste0(Sys.getenv("VACTIME_PATH"), "/tweets_for_graph.Rdata")
 graph_datafile <- "tweets_for_graph.Rdata"
 
 load(graph_datafile)
 
+# function to filter data based on user-selected filters
 get_graph_data <- function(input_day, input_type, input_starting, input_search, mydt = tweets) {
     if(input_day != "All") {
         mydt <- mydt[Weekday == input_day]
@@ -12,9 +12,8 @@ get_graph_data <- function(input_day, input_type, input_starting, input_search, 
         mydt <- mydt[Type == "CVS"]
     } else if(input_type == "noncvs") {
         mydt <- mydt[Type == "Specific Location"]
-    } # else if(input_type == "cvsplus") {
-      #    mydt <- mydt[Location %chin% useful_locations]
-#    }
+    } 
+  
     if(input_search != "") {
         input_regex <- gsub("\\s?OR\\s?", "|", input_search)
         mydt <- mydt[grepl(input_regex, Location)]
@@ -38,14 +37,9 @@ library(dplyr)
 ui <- navbarPage(
   "@vaccinetime Tweet Analysis",
   inverse = FALSE,
-  # Application title
-  # titlePanel("@vaccinetime tweets"),
-
-    # Application title
-  #  titlePanel("@vaccinetime tweets"),
     theme = shinytheme("cosmo"),
 
-    # Sidebar with a slider input for number of bins 
+    # Sidebar with user filter options
     tabPanel("Data by Day of Week and Hour", 
     sidebarLayout(
         sidebarPanel(
@@ -60,7 +54,6 @@ ui <- navbarPage(
                              value = "2021-03-01"
                              ),
             shiny::textAreaInput("search", "Search Table Location Column: (separate multiple terms with OR): ", height = 50)
-         #   textOutput("test")
         ),
 
         # Show plot and table
@@ -96,15 +89,14 @@ ui <- navbarPage(
 
 server <- function(input, output, session) {
   
-    output$test <- renderText(
-      input$search
-    )
+   # Get filtered data for graph and table
     thedata <- reactive({
         req(tweets, input$day, input$type, input$starting)
         get_graph_data(input$day, input$type, input$starting, input$search, tweets)
         
     })
     
+    # get headline based on user selections
     theheadlinetext <- reactive({
         req(input$day, input$type, input$starting)
         myhead <- paste("Tweets by Hour Starting", format(input$starting, "%B %e"))
