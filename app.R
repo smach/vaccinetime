@@ -51,7 +51,7 @@ ui <- fluidPage(
                              min = "2021-02-10", max = Sys.Date(),
                              value = "2021-03-01"
                              ),
-            shiny::textAreaInput("search", "Search Location For (separate multiple terms with OR): ", height = 50)
+            shiny::textAreaInput("search", "Search Table Location Column: (separate multiple terms with OR): ", height = 50)
          #   textOutput("test")
         ),
 
