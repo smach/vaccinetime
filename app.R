@@ -100,10 +100,12 @@ server <- function(input, output) {
     })
     
     output$mytable <- renderDT({
-        DT::datatable(thedata(), filter = 'top', rownames = FALSE, options = list( search = list(
-            regex = TRUE
-        ),
-        dom = 't')
+        DT::datatable(thedata(), filter = 'top', rownames = FALSE, extensions = 'Buttons', 
+                      options = list( search = list(
+                                   regex = TRUE
+                                    ),
+                                 dom = 'Bt',
+                                 buttons = 'csv')
                       )
     })
     
