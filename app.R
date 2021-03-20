@@ -121,8 +121,12 @@ server <- function(input, output, session) {
                       options = list( search = list(
                                    regex = TRUE
                                     ),
-                                 dom = 'Bt',
-                                 buttons = 'csv')
+                                 dom = 'Btlp',
+                                 buttons = 'csv',
+                                 pageLength = 25,
+                                 lengthMenu = c(25, 50, 100, 200, 500)
+                                 
+                                 )
                       )
     })
     
