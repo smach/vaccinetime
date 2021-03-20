@@ -4,7 +4,11 @@ graph_datafile <- "tweets_for_graph.Rdata"
 load(graph_datafile)
 
 # function to filter data based on user-selected filters
-get_graph_data <- function(input_day, input_type, input_starting, input_search, mydt = tweets) {
+get_graph_data <- function(input_day, input_type, input_starting, input_masssites, input_search, mydt = tweets) {
+    mass_regex <- c("gillette|natick\\small|eastfield\\small|fenway|hynes|reggie\\slewis|DoubleTree Hotel...Danvers|Circuit City...Dartmouth ")
+    if(input_masssites == "Yes") {
+      mydt <- mydt[!grepl(mass_regex, text, ignore.case = TRUE)]
+    }
     if(input_day != "All") {
         mydt <- mydt[Weekday == input_day]
     }
@@ -16,7 +20,7 @@ get_graph_data <- function(input_day, input_type, input_starting, input_search, 
   
     if(input_search != "") {
         input_regex <- gsub("\\s?OR\\s?", "|", input_search)
-        mydt <- mydt[grepl(input_regex, text)]
+        mydt <- mydt[grepl(input_regex, text, ignore.case = TRUE)]
     }
     
     mydt <- mydt[Date >= input_starting, .("Created" = as.character(Time), "Tweet" = text, Date, Hour, Weekday, Number, Location)]
@@ -53,6 +57,7 @@ ui <- navbarPage(
                              min = "2021-02-10", max = Sys.Date(),
                              value = "2021-03-01"
                              ),
+            radioButtons("masssites", "Remove Sites Now in MA Central Reg System?", choices = c("Yes", "No"), selected = "Yes"),
             shiny::textAreaInput("search", "Search Table Tweet Column: (separate multiple terms with OR): ", height = 50)
         ),
 
@@ -92,7 +97,7 @@ server <- function(input, output, session) {
    # Get filtered data for graph and table
     thedata <- reactive({
         req(tweets, input$day, input$type, input$starting)
-        get_graph_data(input$day, input$type, input$starting, input$search, tweets)
+        get_graph_data(input$day, input$type, input$starting, input$masssites, input$search, tweets)
         
     })
     
