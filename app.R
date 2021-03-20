@@ -36,6 +36,7 @@ library(echarts4r)
 library(data.table)
 library(stringr)
 library(dplyr)
+library(scales)
 
 # Define UI ----
 ui <- navbarPage(
@@ -65,7 +66,8 @@ ui <- navbarPage(
         mainPanel(
            uiOutput("myheadline"),
            echarts4rOutput("mygraph"),
-           h3("All Matching Tweets", h4("(Use filters on left to affect above graph too)", align = "center"), align = "center"),
+           uiOutput("table_headline"),
+           h4("(Use filters on left to affect above graph too)", align = "center"),
            DT::DTOutput("mytable")
             
             
@@ -78,6 +80,7 @@ ui <- navbarPage(
                column(width = 8, offset = 2,
            HTML("<p></p>
                 <p>This application looks at date and time trends for when new vaccine appointments first become publicly available, using the incredible <a target='_new' href='https://twitter.com/vaccinetime'>@vaccinetime</a> Twitter bot by <a target='_new' href='https://twitter.com/dpcahoon'>Dan Cahoon</a> at <a target='_new' href='https://twitter.com/dpcahoon'>Ginko Bioworks</a>. <em>Data here only update every 30 minutes. This is not meant for real-time use. </em> If you want to pounce on appointments quickly, use the <a target='_new' href='https://twitter.com/vaccinetime'>@vaccinetime bot</a>, which updates much more frequently. This app aims to help you understand <em>when </em>you might want to be paying special attention to that bot.</p>
+                <p>Note that there will be many other vaccine appointments in Massachusetts not covered by @vaccinetime and this app, including the seven mass vaccination centers now handled by the state's central registration system, health systems such as Mass General Brigham, and some locally run sites, among others. Try not to get too discouraged at the current number of available appointments here! (Plus, while CVS is listed, they don't post the exact appointments they have available each week so they aren't included in totals.) </p>
                <p>This app was created by <a target='_new' href='https://twitter.com/sharon000'>Sharon Machlis</a> with the <a target='_new' href='https://www.r-project.org/'>R programming language</a> and R packages <a target='_new' href='https://shiny.rstudio.com/'>shiny</a>, <a target='_new' href='https://rdatatable.gitlab.io/data.table/'>data.table</a>,  <a target='_new' href='https://docs.ropensci.org/rtweet/'>rtweet</a>, <a target='_new' href='https://echarts4r.john-coene.com/'>echarts4r</a>, <a target='_new' href='https://rstudio.github.io/DT/'>DT</a>, and <a target='_new' href='https://lubridate.tidyverse.org/'>lubridate</a>, among others. It wouldn't have been possible without the incredible contributions of the R core team and R package authors to make this free platform possible -- as well as, of course, Dan's bot. (Any and all errors in the data presentation are, however, mine alone.)</p>
                <p><em>Infrastructure provided by <a href='https://www.digitalocean.com/'>Digital Ocean</a>.</em></p>
                " 
@@ -101,6 +104,12 @@ server <- function(input, output, session) {
         
     })
     
+    total_appointments <- reactive({
+      req(thedata())
+      sum(thedata()$Number, na.rm = TRUE)
+      
+    })
+    
     # get headline based on user selections
     theheadlinetext <- reactive({
         req(input$day, input$type, input$starting)
@@ -116,6 +125,16 @@ server <- function(input, output, session) {
         return(myhead)
     })
     
+tableheadlinetext <- reactive({
+  paste0("All Matching Tweets: ", scales::comma(total_appointments(), accuracy = 1), " appointments (not including CVS)")
+  
+  
+})    
+    
+    
+output$table_headline <- renderUI({
+  h3(tableheadlinetext(), align = "center")
+})
     
     output$myheadline <- renderUI({
         h2(theheadlinetext(), align = 'center')
