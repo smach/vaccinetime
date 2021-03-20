@@ -59,7 +59,7 @@ ui <- fluidPage(
         mainPanel(
            uiOutput("myheadline"),
            echarts4rOutput("mygraph"),
-           h3("All Matching Tweets", align = "center"),
+           h3("All Matching Tweets", h4("(Use filters on left to affect above graph too)", align = "center"), align = "center"),
            DT::DTOutput("mytable")
             
             
