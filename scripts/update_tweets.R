@@ -4,7 +4,10 @@ datafile <- paste0(Sys.getenv("VACTIME_PATH"), "/data/vactweets.Rds")
 graph_datafile <- paste0(Sys.getenv("VACTIME_PATH"), "/data/tweets_for_graph.Rdata")
 app_datafile <- paste0(Sys.getenv("VACTIME_PATH"), "/tweets_for_graph.Rdata")
 
-library(rtweet)
+# Check out rtweet package library website on how to authenticate with your Twitter account if you're not working interactively:
+# https://docs.ropensci.org/rtweet/articles/auth.html
+
+library(rtweet) 
 library(data.table)
 vactweets <- rtweet::get_timeline("vaccinetime", n = 1000)
 setDT(vactweets)
