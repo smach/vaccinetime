@@ -1,5 +1,5 @@
 
-graph_datafile <-paste0(Sys.getenv("VACTIME_PATH"), "/tweets_for_graph.Rds")
+graph_datafile <- paste0(Sys.getenv("VACTIME_PATH"), "/tweets_for_graph.Rdata")
 
 load(graph_datafile)
 
@@ -29,7 +29,6 @@ library(shiny)
 library(DT)
 library(echarts4r)
 library(data.table)
-load(graph_datafile)
 library(stringr)
 library(dplyr)
 
@@ -46,13 +45,14 @@ ui <- fluidPage(
                          choices = c("All", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"), selected = "All"
                         ),
             radioButtons("type", "Select Type: ",
-                         choices = c("All" = "all", "CVS" = "cvs", "Non-CVS" = "noncvs", selected = "all")
-                         ),
+                         choices = c("All" = "all", "CVS" = "cvs", "Non-CVS" = "noncvs"), selected = "all"),
+                        
             shiny::dateInput("starting", "Starting on: ",
                              min = "2021-02-10", max = Sys.Date(),
                              value = "2021-03-01"
                              ),
             shiny::textAreaInput("search", "Search Location For (separate multiple terms with OR): ", height = 50)
+         #   textOutput("test")
         ),
 
         # Show plot and table
@@ -70,6 +70,10 @@ ui <- fluidPage(
 # Define server logic ----
 
 server <- function(input, output) {
+  
+    output$test <- renderText(
+      input$search
+    )
     thedata <- reactive({
         req(tweets, input$day, input$type, input$starting)
         get_graph_data(input$day, input$type, input$starting, input$search, tweets)
