@@ -213,6 +213,7 @@ output$table_headline <- renderUI({
     })
     
     output$mygraph <- renderEcharts4r({
+           if(nrow(thedata() > 0)) {
            thedata() %>%
             dplyr::mutate(
                 Hour = stringr::str_pad(Hour, 2, pad = 0)
@@ -223,6 +224,9 @@ output$table_headline <- renderUI({
             echarts4r::e_bar(n) %>%
             echarts4r::e_legend(show = FALSE) %>%
             echarts4r::e_tooltip()
+           } else {
+             NULL
+           }
         
     })
     
@@ -231,6 +235,7 @@ output$table_headline <- renderUI({
     })
     
     output$totals_graph <- renderEcharts4r({
+      if(nrow(daily_totals()) > 0) {
       daily_totals() %>%
         echarts4r::e_chart(Date) %>%
         echarts4r::e_bar(`Known Number of Appointments`, bind = Number) %>%
@@ -241,7 +246,9 @@ output$table_headline <- renderUI({
       }
     ")
         ) 
-      
+      } else {
+        NULL
+      } 
     })
 
 }
