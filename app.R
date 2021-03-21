@@ -45,7 +45,7 @@ ui <- navbarPage(
     theme = shinytheme("cosmo"),
 
     # Sidebar with user filter options
-    tabPanel("Data by Day of Week and Hour", 
+    tabPanel("Tweets by Day of Week and Hour", 
     sidebarLayout(
         sidebarPanel(
             radioButtons("day", "Select Day: ",
@@ -74,6 +74,27 @@ ui <- navbarPage(
         )
     )
     ),   # end tab panel 1
+  
+  tabPanel("Daily Appointment Totals (excl. CVS)",
+           
+           sidebarLayout(
+             sidebarPanel(
+               radioButtons("day2", "Select Day: ",
+                            choices = c("All", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"), selected = "All"
+               ),
+               shiny::dateInput("starting2", "Starting on: ",
+                                min = "2021-02-10", max = Sys.Date(),
+                                value = "2021-03-01"
+               ),
+               radioButtons("masssites2", "Remove Sites Now in MA Central Reg System?", choices = c("Yes", "No"), selected = "Yes"),
+             ),
+           mainPanel(
+             uiOutput("myheadline2"),
+             echarts4rOutput("totals_graph")
+           )
+           )
+  ),
+  
   tabPanel("About",
            fluidPage(
              fluidRow(
@@ -104,13 +125,34 @@ server <- function(input, output, session) {
         
     })
     
+    
+    thedata2 <- reactive({
+      req(tweets, input$starting2)
+      get_graph_data(input$day2, input_type = "noncvs", input$starting2, input$masssites2, input_search = "", tweets)
+      
+    })
+    
+    
+    daily_totals <- reactive({
+      req(thedata2())
+      thedata2() %>%
+        dplyr::group_by(Date) %>%
+        dplyr::summarize(
+          `Known Number of Appointments` = sum(Number, na.rm = TRUE)
+        ) %>%
+        mutate(
+          Number = scales::comma(`Known Number of Appointments`, accuracy = 1)
+        )
+      
+    })
+    
     total_appointments <- reactive({
       req(thedata())
       sum(thedata()$Number, na.rm = TRUE)
       
     })
     
-    # get headline based on user selections
+    # get tab 1 headline based on user selections
     theheadlinetext <- reactive({
         req(input$day, input$type, input$starting)
         myhead <- paste("Tweets by Hour Starting", format(input$starting, "%B %e"))
@@ -124,6 +166,22 @@ server <- function(input, output, session) {
         }
         return(myhead)
     })
+    
+    
+    # get tab 2 headline based on user selections
+    theheadlinetext2 <- reactive({
+      req(input$day, input$type, input$starting)
+      myhead <- paste("Daily Known Appointment Totals (excluding CVS) Starting ", format(input$starting, "%B %e"))
+      if(input$day != "All") {
+        myhead <- stringr::str_glue("{myhead} on {input$day}s")
+      }
+      if(input$type == "cvs") {
+        myhead <- paste(myhead, "for CVS")
+      } else if (input$type == "noncvs") {
+        myhead <- paste(myhead, "Except CVS")
+      }
+      return(myhead)
+    })    
     
 tableheadlinetext <- reactive({
   paste0("All Matching Tweets: ", scales::comma(total_appointments(), accuracy = 1), " appointments (not including CVS)")
@@ -168,6 +226,23 @@ output$table_headline <- renderUI({
         
     })
     
+    output$myheadline2 <- renderUI({
+      h2(theheadlinetext2(), align = 'center')
+    })
+    
+    output$totals_graph <- renderEcharts4r({
+      daily_totals() %>%
+        echarts4r::e_chart(Date) %>%
+        echarts4r::e_bar(`Known Number of Appointments`, bind = Number) %>%
+        echarts4r::e_legend(show = FALSE) %>%
+        e_tooltip(formatter = htmlwidgets::JS("
+      function(params){
+        return(params.value[0] + '<br />' + params.name )
+      }
+    ")
+        ) 
+      
+    })
 
 }
 
