@@ -105,6 +105,7 @@ ui <- navbarPage(
                 <p>Try not to get too discouraged at the total number of available appointments shown here! Many more vaccines are being administered in Massachusetts than show up in the tweet totals.</p>
                 <p>And, most importantly, vaccine supplies are supposed to increase significantly in the coming weeks.</p>
                <p>This app was created by <a target='_new' href='https://twitter.com/sharon000'>Sharon Machlis</a> with the <a target='_new' href='https://www.r-project.org/'>R programming language</a> and R packages <a target='_new' href='https://shiny.rstudio.com/'>shiny</a>, <a target='_new' href='https://rdatatable.gitlab.io/data.table/'>data.table</a>,  <a target='_new' href='https://docs.ropensci.org/rtweet/'>rtweet</a>, <a target='_new' href='https://echarts4r.john-coene.com/'>echarts4r</a>, <a target='_new' href='https://rstudio.github.io/DT/'>DT</a>, and <a target='_new' href='https://lubridate.tidyverse.org/'>lubridate</a>, among others. It wouldn't have been possible without the incredible contributions of the R core team and R package authors to make this free platform possible -- as well as, of course, Dan's bot. (Any and all errors in the data presentation are, however, mine alone.)</p>
+               <p>App code at: [https://github.com/smach/vaccinetime](https://github.com/smach/vaccinetime)</p>
                <p><em>Infrastructure provided by <a href='https://www.digitalocean.com/'>Digital Ocean</a>.</em></p>
                " 
           
@@ -225,7 +226,12 @@ output$table_headline <- renderUI({
             echarts4r::e_chart(Hour) %>%
             echarts4r::e_bar(n) %>%
             echarts4r::e_legend(show = FALSE) %>%
-            echarts4r::e_tooltip()
+               e_tooltip(formatter = htmlwidgets::JS("
+      function(params){
+        return('Hour starting ' + params.value[0] + ':00<br />' + params.value[1] + ' total tweets' )
+      }
+    ")
+               )
            } else {
              NULL
            }
