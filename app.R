@@ -124,7 +124,7 @@ ui <- navbarPage(
 
 server <- function(input, output, session) {
   
-  reactivePoll((60000 * 10), NULL, checkFunc = function() {if (file.exists("tweets_for_graph.Rdata")) {TRUE} else {FALSE}}, valueFunc = function() {
+  reactivePoll((60000 * 10), NULL, checkFunc = function() {if (file.exists("tweets_for_graph.Rdata")) {file.info("tweets_for_graph.Rdata")$mtime[1]} else ""}, valueFunc = function() {
     load("tweets_for_graph.Rdata")
     }    )
   
