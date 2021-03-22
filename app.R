@@ -1,7 +1,7 @@
 
 graph_datafile <- "tweets_for_graph.Rdata"
 
-# load(graph_datafile)
+load(graph_datafile)
 
 # function to filter data based on user-selected filters
 get_graph_data <- function(input_day, input_type, input_starting, input_masssites, input_search, mydt = updated_tweets()) {
