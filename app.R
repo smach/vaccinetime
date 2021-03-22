@@ -1,7 +1,8 @@
 
-graph_datafile <- "tweets_for_graph.Rdata"
-
-load(graph_datafile)
+# graph_datafile <- "tweets_for_graph.Rdata"
+graph_csv <- "tweets.csv"
+data.table::fread(graph_csv)
+# load(graph_datafile)
 
 # function to filter data based on user-selected filters
 get_graph_data <- function(input_day, input_type, input_starting, input_masssites, input_search, mydt = updated_tweets()) {
@@ -124,22 +125,22 @@ ui <- navbarPage(
 
 server <- function(input, output, session) {
   
-  reactivePoll((60000 * 10), NULL, checkFunc = function() {if (file.exists("tweets_for_graph.Rdata")) {file.info("tweets_for_graph.Rdata")$mtime[1]} else ""}, valueFunc = function() {
-    load("tweets_for_graph.Rdata")
+  updated_tweets <- reactivePoll((60000 * 5), NULL, checkFunc = function() {if (file.exists("tweets.csv")) {file.info("tweets.csv")$mtime[1]} else ""}, valueFunc = function() {
+    data.table::fread("tweets.csv")
     }    )
   
   
    # Get filtered data for graph and table
     thedata <- reactive({
-        req(tweets, input$day, input$type, input$starting)
-        get_graph_data(input$day, input$type, input$starting, input$masssites, input$search, tweets)
+        req(updated_tweets(), input$day, input$type, input$starting)
+        get_graph_data(input$day, input$type, input$starting, input$masssites, input$search, updated_tweets())
         
     })
     
     
     thedata2 <- reactive({
       req(tweets, input$starting2)
-      get_graph_data(input$day2, input_type = "noncvs", input$starting2, input$masssites2, input_search = "", tweets)
+      get_graph_data(input$day2, input_type = "noncvs", input$starting2, input$masssites2, input_search = "", updated_tweets())
       
     })
     

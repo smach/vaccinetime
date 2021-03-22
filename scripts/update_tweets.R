@@ -2,6 +2,7 @@
 
 datafile <- paste0(Sys.getenv("VACTIME_PATH"), "/data/vactweets.Rds")
 graph_datafile <- paste0(Sys.getenv("VACTIME_PATH"), "/data/tweets_for_graph.Rdata")
+graph_csv <- paste0(Sys.getenv("VACTIME_PATH"), "/tweets.csv")
 app_datafile <- paste0(Sys.getenv("VACTIME_PATH"), "/tweets_for_graph.Rdata")
 
 # Check out rtweet package library website on how to authenticate with your Twitter account if you're not working interactively:
@@ -51,3 +52,4 @@ cvs_tweets <- tweets[Type == "CVS"]
 
 save(tweets, cvs_tweets, file = graph_datafile)
 save(tweets, cvs_tweets, file = app_datafile)
+data.table::fwrite(tweets, graph_csv)
