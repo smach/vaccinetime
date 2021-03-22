@@ -1,7 +1,7 @@
 
 # graph_datafile <- "tweets_for_graph.Rdata"
 graph_csv <- "tweets.csv"
-data.table::fread(graph_csv)
+# data.table::fread(graph_csv)
 # load(graph_datafile)
 
 # function to filter data based on user-selected filters
@@ -139,7 +139,7 @@ server <- function(input, output, session) {
     
     
     thedata2 <- reactive({
-      req(tweets, input$starting2)
+      req(updated_tweets(), input$starting2)
       get_graph_data(input$day2, input_type = "noncvs", input$starting2, input$masssites2, input_search = "", updated_tweets())
       
     })
@@ -148,6 +148,7 @@ server <- function(input, output, session) {
     daily_totals <- reactive({
       req(thedata2())
       thedata2() %>%
+        mutate(Date = as.Date(Date)) %>%
         dplyr::group_by(Date) %>%
         dplyr::summarize(
           `Known Number of Appointments` = sum(Number, na.rm = TRUE)
@@ -182,16 +183,14 @@ server <- function(input, output, session) {
     
     # get tab 2 headline based on user selections
     theheadlinetext2 <- reactive({
-      req(input$day, input$type, input$starting)
-      myhead <- paste("Daily Known Appointment Totals (excluding CVS) Starting ", format(input$starting, "%B %e"))
-      if(input$day != "All") {
-        myhead <- stringr::str_glue("{myhead} on {input$day}s")
+      req(input$day2, input$starting2)
+      myhead <- paste("Daily Known Appointment Totals (excluding CVS) Starting ", format(input$starting2, "%B %e"))
+      if(input$day2 != "All") {
+        myhead <- stringr::str_glue("{myhead} on {input$day2}s")
       }
-      if(input$type == "cvs") {
-        myhead <- paste(myhead, "for CVS")
-      } else if (input$type == "noncvs") {
+      
         myhead <- paste(myhead, "Except CVS")
-      }
+      
       return(myhead)
     })    
     
@@ -225,7 +224,7 @@ output$table_headline <- renderUI({
     })
     
     output$mygraph <- renderEcharts4r({
-           if(nrow(thedata() > 0)) {
+           if(nrow(thedata()) > 0) {
            thedata() %>%
             dplyr::mutate(
                 Hour = stringr::str_pad(Hour, 2, pad = 0)
