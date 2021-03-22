@@ -126,7 +126,7 @@ ui <- navbarPage(
 server <- function(input, output, session) {
   
   updated_tweets <- reactivePoll((60000 * 5), NULL, checkFunc = function() {if (file.exists("tweets.csv")) {file.info("tweets.csv")$mtime[1]} else ""}, valueFunc = function() {
-    data.table::fread("tweets.csv")
+    data.table::fread("tweets.csv")[, Time := lubridate::with_tz(Time, tz = "America/New_York")]
     }    )
   
   
