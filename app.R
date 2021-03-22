@@ -1,10 +1,10 @@
 
 graph_datafile <- "tweets_for_graph.Rdata"
 
-load(graph_datafile)
+# load(graph_datafile)
 
 # function to filter data based on user-selected filters
-get_graph_data <- function(input_day, input_type, input_starting, input_masssites, input_search, mydt = tweets) {
+get_graph_data <- function(input_day, input_type, input_starting, input_masssites, input_search, mydt = updated_tweets()) {
     mass_regex <- c("gillette|natick\\small|eastfield\\small|fenway|hynes|reggie\\slewis|DoubleTree Hotel...Danvers|Circuit City...Dartmouth ")
     if(input_masssites == "Yes") {
       mydt <- mydt[!grepl(mass_regex, text, ignore.case = TRUE)]
@@ -123,6 +123,11 @@ ui <- navbarPage(
 # Define server logic ----
 
 server <- function(input, output, session) {
+  
+  reactivePoll((60000 * 10), NULL, checkFunc = function() {if (file.exists("tweets_for_graph.Rdata")) {TRUE} else {FALSE}}, valueFunc = function() {
+    load("tweets_for_graph.Rdata")
+    }    )
+  
   
    # Get filtered data for graph and table
     thedata <- reactive({
